@@ -48,7 +48,7 @@ function App() {
       {/* Premium Loading Screen */}
       {!loaded && <LoadingScreen onComplete={handleLoadComplete} />}
 
-      <Canvas shadows camera={{ position: [0, 1.5, 0] }} gl={{ preserveDrawingBuffer: true }}>
+      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1.5, 0] }} gl={{ preserveDrawingBuffer: true }}>
         <ResponsiveCamera />
         <color attach="background" args={['#1a1a22']} />
         <fog attach="fog" args={['#1a1a22', 12, 38]} />

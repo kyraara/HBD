@@ -58,9 +58,13 @@ export default function ManualControls({ started }) {
       const dy = e.clientY - prevPointer.current.y
       prevPointer.current = { x: e.clientX, y: e.clientY }
 
+      // Increase sensitivity on mobile to make looking around easier
+      const isMobile = window.innerWidth < 768 || window.innerWidth < window.innerHeight
+      const activeLookSpeed = isMobile ? LOOK_SPEED * 3 : LOOK_SPEED
+
       euler.current.setFromQuaternion(camera.quaternion)
-      euler.current.y -= dx * LOOK_SPEED
-      euler.current.x -= dy * LOOK_SPEED
+      euler.current.y -= dx * activeLookSpeed
+      euler.current.x -= dy * activeLookSpeed
       euler.current.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, euler.current.x))
       camera.quaternion.setFromEuler(euler.current)
     }

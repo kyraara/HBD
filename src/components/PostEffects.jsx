@@ -1,10 +1,16 @@
 import React from 'react'
 import { EffectComposer, Bloom, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
+import { useThree } from '@react-three/fiber'
 import { useStore } from '../store'
 
 export default function PostEffects() {
   const { showLetter } = useStore()
+  const { size } = useThree()
+  
+  // Disable heavy post-processing on mobile for better performance
+  const isMobile = size.width < 768 || size.width < size.height
+  if (isMobile) return null
 
   return (
     <EffectComposer multisampling={0}>
