@@ -13,7 +13,7 @@ export default function ManualControls({ started }) {
   const { camera, gl } = useThree()
 
   const keys = useRef({ w: false, a: false, s: false, d: false })
-  const isPointerDown = useRef(false)
+  const activePointerId = useRef(null)
   const prevPointer = useRef({ x: 0, y: 0 })
   const euler = useRef(new THREE.Euler(0, 0, 0, 'YXZ'))
   const joystickInput = useRef({ x: 0, y: 0 }) // For virtual joystick
@@ -41,24 +41,42 @@ export default function ManualControls({ started }) {
     }
   }, [controlMode, started])
 
-  // Mouse drag to look (right half of screen)
+  // Touch/mouse drag to look — works like mobile FPS:
+  // Swipe anywhere on screen (except UI buttons/joystick) to rotate camera
   useEffect(() => {
     if (controlMode !== 'manual' || !started) return
-    const canvas = gl.domElement
+
+    // Check if the touch target is a UI element we should ignore
+    const isUIElement = (el) => {
+      while (el) {
+        if (el.classList && (
+          el.classList.contains('ui-interactive') ||
+          el.classList.contains('joystick-base') ||
+          el.classList.contains('joystick-stick') ||
+          el.classList.contains('mute-btn') ||
+          el.classList.contains('mode-toggle') ||
+          el.tagName === 'BUTTON'
+        )) return true
+        el = el.parentElement
+      }
+      return false
+    }
 
     const onPointerDown = (e) => {
-      // Only respond to touches/clicks on the canvas area (not UI buttons)
-      if (e.target !== canvas) return
-      isPointerDown.current = true
+      // Skip if touching a UI button or the joystick
+      if (isUIElement(e.target)) return
+      if (activePointerId.current !== null) return
+      activePointerId.current = e.pointerId
       prevPointer.current = { x: e.clientX, y: e.clientY }
     }
+
     const onPointerMove = (e) => {
-      if (!isPointerDown.current) return
+      if (activePointerId.current !== e.pointerId) return
       const dx = e.clientX - prevPointer.current.x
       const dy = e.clientY - prevPointer.current.y
       prevPointer.current = { x: e.clientX, y: e.clientY }
 
-      // Increase sensitivity on mobile to make looking around easier
+      // Higher sensitivity on mobile for comfortable swiping
       const isMobile = window.innerWidth < 768 || window.innerWidth < window.innerHeight
       const activeLookSpeed = isMobile ? LOOK_SPEED * 3 : LOOK_SPEED
 
@@ -68,15 +86,23 @@ export default function ManualControls({ started }) {
       euler.current.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, euler.current.x))
       camera.quaternion.setFromEuler(euler.current)
     }
-    const onPointerUp = () => { isPointerDown.current = false }
 
-    canvas.addEventListener('pointerdown', onPointerDown)
-    window.addEventListener('pointermove', onPointerMove)
-    window.addEventListener('pointerup', onPointerUp)
+    const onPointerUp = (e) => {
+      if (activePointerId.current === e.pointerId) {
+        activePointerId.current = null
+      }
+    }
+
+    // Listen on document so ANY screen swipe works (not just on the canvas)
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('pointermove', onPointerMove)
+    document.addEventListener('pointerup', onPointerUp)
+    document.addEventListener('pointercancel', onPointerUp)
     return () => {
-      canvas.removeEventListener('pointerdown', onPointerDown)
-      window.removeEventListener('pointermove', onPointerMove)
-      window.removeEventListener('pointerup', onPointerUp)
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('pointermove', onPointerMove)
+      document.removeEventListener('pointerup', onPointerUp)
+      document.removeEventListener('pointercancel', onPointerUp)
     }
   }, [controlMode, started, camera, gl])
 
