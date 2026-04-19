@@ -1,9 +1,10 @@
 import React from 'react'
 import { Text } from '@react-three/drei'
 import DynamicLighting from './DynamicLighting'
+import SecretDoor from './SecretDoor'
 
 export default function Room() {
-  const depth = 35;
+  const galleryDepth = 35; // Gallery only extends to z=-35 (where the door is)
   const width = 10;
   const height = 5;
 
@@ -11,9 +12,9 @@ export default function Room() {
     <group>
       <DynamicLighting />
       
-      {/* Hanging Lights with Glowing Bulbs */}
+      {/* Hanging Lights along the gallery (z=3 down to z=-30) */}
       {Array.from({ length: 6 }).map((_, i) => (
-        <group key={`light-${i}`} position={[0, height, -depth + (i * 6) + 2]}>
+        <group key={`light-${i}`} position={[0, height, 3 - (i * 6)]}>
           <pointLight 
             position={[0, -0.5, 0]} 
             intensity={0.6} 
@@ -39,37 +40,38 @@ export default function Room() {
         </group>
       ))}
 
-      {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -depth/2]} receiveShadow>
-        <planeGeometry args={[width, depth]} />
+      {/* ===== GALLERY FLOOR (entrance to door) ===== */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -galleryDepth/2]} receiveShadow>
+        <planeGeometry args={[width, galleryDepth]} />
         <meshStandardMaterial color="#3a2512" roughness={0.7} metalness={0.1} />
       </mesh>
 
       {/* Red Carpet */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -depth/2]} receiveShadow>
-        <planeGeometry args={[3.2, depth]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -galleryDepth/2]} receiveShadow>
+        <planeGeometry args={[3.2, galleryDepth]} />
         <meshStandardMaterial color="#881111" roughness={0.9} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, -depth/2]} receiveShadow>
-        <planeGeometry args={[3.0, depth]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, -galleryDepth/2]} receiveShadow>
+        <planeGeometry args={[3.0, galleryDepth]} />
         <meshStandardMaterial color="#a31a1a" roughness={0.8} />
       </mesh>
 
-      {/* Ceiling */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, height, -depth/2]}>
-        <planeGeometry args={[width, depth]} />
+      {/* ===== GALLERY CEILING ===== */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, height, -galleryDepth/2]}>
+        <planeGeometry args={[width, galleryDepth]} />
         <meshStandardMaterial color="#faf9f5" roughness={1} />
       </mesh>
 
+      {/* ===== GALLERY WALLS (only up to z=-35, NOT past the door) ===== */}
       {/* Left Wall */}
-      <mesh position={[-width/2, height/2, -depth/2]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[depth, height]} />
+      <mesh position={[-width/2, height/2, -galleryDepth/2]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
+        <planeGeometry args={[galleryDepth, height]} />
         <meshStandardMaterial color="#ebe5d9" roughness={0.9} />
       </mesh>
 
       {/* Right Wall */}
-      <mesh position={[width/2, height/2, -depth/2]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[depth, height]} />
+      <mesh position={[width/2, height/2, -galleryDepth/2]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
+        <planeGeometry args={[galleryDepth, height]} />
         <meshStandardMaterial color="#ebe5d9" roughness={0.9} />
       </mesh>
       
@@ -79,46 +81,16 @@ export default function Room() {
         <meshStandardMaterial color="#ebe5d9" roughness={0.9} />
       </mesh>
 
-      {/* Front Wall (Cake room) */}
-      <mesh position={[0, height/2, -depth]} rotation={[0, Math.PI, 0]} receiveShadow>
-        <planeGeometry args={[width, height]} />
-        <meshStandardMaterial color="#2c303a" roughness={0.8} />
-      </mesh>
+      {/* ===== SECRET DOOR PARTITION at z=-35 ===== */}
+      <SecretDoor position={[0, height/2, -35]} />
 
-      {/* Neon Sign "Happy Birthday" */}
-      <group position={[0, 3.2, -depth + 0.1]}>
-        {/* Glow */}
-        <Text
-          fontSize={0.8}
-          anchorX="center"
-          anchorY="middle"
-        >
-          Happy Birthday
-          <meshBasicMaterial color="#ff6b9a" transparent opacity={0.8} toneMapped={false} />
-        </Text>
-        {/* Core text */}
-        <Text
-          position={[0, 0, 0.02]}
-          fontSize={0.8}
-          anchorX="center"
-          anchorY="middle"
-        >
-          Happy Birthday
-          <meshBasicMaterial color="#ffffff" toneMapped={false} />
-        </Text>
-      </group>
-
-      {/* Baseboards */}
-      <mesh position={[-width/2 + 0.05, 0.2, -depth/2]} rotation={[0, Math.PI / 2, 0]}>
-        <boxGeometry args={[depth, 0.4, 0.1]} />
+      {/* Baseboards (only gallery section) */}
+      <mesh position={[-width/2 + 0.05, 0.2, -galleryDepth/2]} rotation={[0, Math.PI / 2, 0]}>
+        <boxGeometry args={[galleryDepth, 0.4, 0.1]} />
         <meshStandardMaterial color="#ffffff" roughness={0.5} />
       </mesh>
-      <mesh position={[width/2 - 0.05, 0.2, -depth/2]} rotation={[0, Math.PI / 2, 0]}>
-        <boxGeometry args={[depth, 0.4, 0.1]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.5} />
-      </mesh>
-      <mesh position={[0, 0.2, -depth + 0.05]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[width, 0.4, 0.1]} />
+      <mesh position={[width/2 - 0.05, 0.2, -galleryDepth/2]} rotation={[0, Math.PI / 2, 0]}>
+        <boxGeometry args={[galleryDepth, 0.4, 0.1]} />
         <meshStandardMaterial color="#ffffff" roughness={0.5} />
       </mesh>
 

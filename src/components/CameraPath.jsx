@@ -11,8 +11,9 @@ export default function CameraPath({ started }) {
     { position: new THREE.Vector3(1, 1.5, -6), lookAt: new THREE.Vector3(5, 1.5, -6) },
     { position: new THREE.Vector3(-1, 1.5, -13), lookAt: new THREE.Vector3(-5, 1.5, -13) },
     { position: new THREE.Vector3(1, 1.5, -20), lookAt: new THREE.Vector3(5, 1.5, -20) },
-    { position: new THREE.Vector3(-1, 1.5, -27), lookAt: new THREE.Vector3(-5, 1.5, -27) },
-    { position: new THREE.Vector3(0, 1.5, -31), lookAt: new THREE.Vector3(0, 0.5, -33) }
+    { position: new THREE.Vector3(-1, 1.5, -27), lookAt: new THREE.Vector3(-5, 1.5, -27) }, // Photo 4
+    { position: new THREE.Vector3(0, 1.5, -32), lookAt: new THREE.Vector3(0, 1.5, -36) }, // In front of Secret Door
+    { position: new THREE.Vector3(0, 1.5, -37), lookAt: new THREE.Vector3(0, 0.8, -44) } // Secret Room — in front of curtain, looking at cake
   ]
 
   const currentVec = new THREE.Vector3()

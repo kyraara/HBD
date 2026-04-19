@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store'
 import { playUIClick } from '../utils/sfx'
+import HandwrittenLetter from './HandwrittenLetter'
 
 /* ===== Typewriter Effect ===== */
 function Typewriter({ text, delay = 1000, speed = 50, onFinish }) {
@@ -247,7 +248,7 @@ function CountdownTimer({ targetDate }) {
 
 /* ===== Main Overlay ===== */
 export default function OverlayUI({ started, onStart }) {
-  const { currentWaypoint, maxWaypoints, nextWaypoint, prevWaypoint, showLetter, config, isUnlocked, unlock, controlMode, setControlMode, isModeSelected, setModeSelected, isMuted } = useStore()
+  const { currentWaypoint, maxWaypoints, nextWaypoint, prevWaypoint, showLetter, config, isUnlocked, isSecretRoomUnlocked, unlock, unlockSecretRoom, controlMode, setControlMode, isModeSelected, setModeSelected, isMuted, showEKG, setShowEKG } = useStore()
   const [pinError, setPinError] = useState(false)
   const [pinSuccess, setPinSuccess] = useState(false)
   const [typingDone, setTypingDone] = useState(false)
@@ -334,28 +335,19 @@ export default function OverlayUI({ started, onStart }) {
                   className="lock-icon"
                   animate={{ scale: pinError ? [1, 0.9, 1] : 1 }}
                 >
-                  {isWaiting ? '⏳' : '🔒'}
+                  🔒
                 </motion.div>
 
                 <h1 className="vault-title">The Vault of Us</h1>
 
-                {isWaiting ? (
-                  <>
-                    <p className="vault-subtitle">Waktu belum menunjukkan momen spesial tersebut.</p>
-                    <CountdownTimer targetDate={config.birthdayDate} />
-                  </>
-                ) : (
-                  <>
-                    <p className="vault-subtitle">{config.passwordHint}</p>
-                    {/* PIN Input */}
-                    <PinInput
-                      length={config.secretPassword.length}
-                      onComplete={handlePinComplete}
-                      error={pinError}
-                      success={pinSuccess}
-                    />
-                  </>
-                )}
+                <p className="vault-subtitle">{config.passwordHint}</p>
+                {/* PIN Input */}
+                <PinInput
+                  length={config.secretPassword.length}
+                  onComplete={handlePinComplete}
+                  error={pinError}
+                  success={pinSuccess}
+                />
 
                 {/* Error Message */}
                 <AnimatePresence>
@@ -438,6 +430,8 @@ export default function OverlayUI({ started, onStart }) {
                 setShowOnboarding(false)
                 nextWaypoint()
               }}
+              // Jangan tampilkan tombol Lanjut jika di depan Secret Door tapi belum ke-unlock
+              style={{ display: (currentWaypoint === maxWaypoints - 1 && !isSecretRoomUnlocked) ? 'none' : 'block' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               whileTap={{ scale: 0.95 }}
@@ -458,6 +452,53 @@ export default function OverlayUI({ started, onStart }) {
         </div>
       )}
 
+      {/* ===== EKG COUNTDOWN FOR SECRET DOOR ===== */}
+      <AnimatePresence>
+        {started && !showLetter && (currentWaypoint === (maxWaypoints - 1) || showEKG) && !isSecretRoomUnlocked && (
+          <motion.div 
+            className="ekg-countdown ui-interactive"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            style={{ position: 'relative' }}
+          >
+            {controlMode === 'manual' && (
+              <button 
+                onClick={() => setShowEKG(false)}
+                style={{ position: 'absolute', top: 10, right: 15, background: 'none', border: 'none', color: '#ff6b9a', cursor: 'pointer', fontSize: '1.2rem'}}
+              >
+                ✕
+              </button>
+            )}
+            <p className="ekg-message">Belum waktunya...</p>
+            <div className="ekg-line">
+              <svg width="100%" height="100%" viewBox="0 0 300 60" preserveAspectRatio="none">
+                <polyline 
+                  points="0,30 50,30 60,10 70,50 80,20 90,40 100,30 300,30" 
+                  fill="none" 
+                  stroke="#e83e8c" 
+                  strokeWidth="3" 
+                  strokeLinejoin="round" 
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            {isWaiting ? (
+              <CountdownTimer targetDate={config.birthdayDate} />
+            ) : (
+              <motion.button 
+                className="gift-btn" 
+                style={{ padding: '10px 20px', fontSize: '0.9rem', marginTop: '1rem' }}
+                onClick={unlockSecretRoom}
+                whileTap={{ scale: 0.9 }}
+              >
+                Buka Pintu
+              </motion.button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ===== LETTER OVERLAY ===== */}
       <AnimatePresence>
         {showLetter && (
@@ -466,22 +507,9 @@ export default function OverlayUI({ started, onStart }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { duration: 2 } }}
           >
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1, transition: { delay: 0.5, duration: 1.5, ease: 'easeOut' } }}
-              style={{ maxWidth: '600px', textAlign: 'center' }}
-            >
-              <h1 className="letter-title">Happy Birthday, Cha!</h1>
-              <p className="letter-body">
-                <Typewriter
-                  text={config.letterText}
-                  delay={1500}
-                  speed={55}
-                  onFinish={() => setTypingDone(true)}
-                />
-              </p>
+            <HandwrittenLetter onComplete={() => setTypingDone(true)} />
 
-              {/* Action Buttons - appear after typing is done */}
+            {/* Action Buttons - appear after typing is done */}
               <AnimatePresence>
                 {typingDone && (
                   <motion.div
@@ -514,7 +542,6 @@ export default function OverlayUI({ started, onStart }) {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -7,8 +7,7 @@ import CameraPath from './components/CameraPath'
 import ManualControls, { VirtualJoystick } from './components/ManualControls'
 import PhotoFrame from './components/PhotoFrame'
 import Cake from './components/Cake'
-import Curtain from './components/Curtain'
-import Gifts from './components/Gifts'
+import SecretRoom from './components/SecretRoom'
 import CandleDetector from './components/CandleDetector'
 import BGMPlayer from './components/BGMPlayer'
 import Lightbox from './components/Lightbox'
@@ -51,13 +50,13 @@ function App() {
       <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1.5, 0] }} gl={{ preserveDrawingBuffer: true }}>
         <ResponsiveCamera />
         <color attach="background" args={['#1a1a22']} />
-        <fog attach="fog" args={['#1a1a22', 12, 38]} />
+        <fog attach="fog" args={['#1a1a22', 15, 55]} />
         
         <Suspense fallback={null}>
           {started && (
             <>
               <Room />
-              
+
               <Sparkles 
                 count={250} 
                 scale={[12, 6, 40]} 
@@ -67,13 +66,12 @@ function App() {
                 size={1.5} 
                 color="#ffe5b4" 
               />
-
+              
               {config.photos.map((photo) => (
                 <PhotoFrame key={photo.id} {...photo} />
               ))}
-              <Curtain position={[0, 2.5, -30]} />
-              <Gifts />
-              <Cake position={[0, 0.4, -33]} />
+              
+              <SecretRoom />
             </>
           )}
 

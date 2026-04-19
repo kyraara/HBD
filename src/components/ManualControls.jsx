@@ -6,10 +6,12 @@ import { playFootstep } from '../utils/sfx'
 
 const MOVE_SPEED = 3
 const LOOK_SPEED = 0.003
-const ROOM_BOUNDS = { minX: -4.5, maxX: 4.5, minZ: -34, maxZ: 1 }
 
 export default function ManualControls({ started }) {
-  const { controlMode, isMuted } = useStore()
+  const { controlMode, isMuted, isSecretRoomUnlocked } = useStore()
+  
+  const ROOM_BOUNDS = { minX: -4.5, maxX: 4.5, minZ: isSecretRoomUnlocked ? -53 : -34, maxZ: 1 }
+
   const { camera, gl } = useThree()
 
   const keys = useRef({ w: false, a: false, s: false, d: false })

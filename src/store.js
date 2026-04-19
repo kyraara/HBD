@@ -5,18 +5,22 @@ const appConfig = {
   // PINTU GERBANG
   secretPassword: "0804",
   passwordHint: "Masukkan 4 digit tanggal spesial kita",
-  birthdayDate: "2026-0-10T02:20:00+07:00", // Contoh waktu di masa depan, kosongkan "" jika ingin matikan timer
+  birthdayDate: "2026-02-14T00:00:00+07:00", // Tanggal ultah dia (digunakan untuk Secret Door & EKG)
 
   // GALERI
   photos: [
-    { id: 1, url: '/images/2.jpg', audioUrl: '/audio/p1.mp3', text: 'Kala Itu Bersamamu', memory: 'Waktu itu kita duduk berjam-jam di café, ngobrol sampai lupa waktu...', position: [4.9, 1.8, -6], rotation: [0, -Math.PI / 2, 0] },
+    { id: 1, url: '/images/2.jpg', audioUrl: '/audio/pembohong.mp3', text: 'Kala Itu Bersamamu', memory: 'Waktu itu kita duduk berjam-jam di café, ngobrol sampai lupa waktu...', position: [4.9, 1.8, -6], rotation: [0, -Math.PI / 2, 0] },
     { id: 2, url: '/images/3.jpg', audioUrl: '/audio/p2.mp3', text: 'Senja Keduanya', memory: 'Senja hari itu begitu indah, tapi tidak seindah senyummu.', position: [-4.9, 1.8, -13], rotation: [0, Math.PI / 2, 0] },
     { id: 3, url: '/images/1.jpg', audioUrl: '/audio/p1.mp3', text: 'Jejak Langkah', memory: 'Setiap langkah bersamamu terasa ringan, karena kamu yang menggenggam tanganku.', position: [4.9, 1.8, -20], rotation: [0, -Math.PI / 2, 0] },
-    { id: 4, url: '/images/dummy_4_1775657172282.png', audioUrl: '/audio/p2.mp3', text: 'Sebuah Perayaan', memory: 'Dan setiap momen kecil bersamamu, layak untuk dirayakan.', position: [-4.9, 1.8, -27], rotation: [0, Math.PI / 2, 0] }
+    { id: 4, url: '/images/dummy_4_1775657172282.png', audioUrl: '/audio/tes.ogg', text: 'Sebuah Perayaan', memory: 'Dan setiap momen kecil bersamamu, layak untuk dirayakan.', position: [-4.9, 1.8, -27], rotation: [0, Math.PI / 2, 0] }
   ],
 
-  // SURAT
-  letterText: "Selamat ulang tahun untuk orang paling spesial!\n\nSemoga di langkah usia barumu ini, selalu diliputi kebahagiaan. Galeri ini cuma sebagian kecil dari banyaknya memori berkesan kita.\n\nSemoga kita bisa terus mengabadikan momen-momen indah lainnya bersama. I love you!",
+  // SURAT CONFESS (TEMA RESEP DOKTER)
+  letterTitle: "R/",
+  letterPatient: "Untuk: Cha",
+  letterDiagnosis: "Diagnosis: Gue kena sesuatu yang belum ada obatnya...",
+  letterText: "Gue harap di usia baru lo ini, lo bisa ngeraih semua cita-cita lo.\n\nRuangan ini, galeri ini, cuma sebagian kecil dari apa yang pengen gue unjukin ke lo. Dan gue harap kita bisa terus bikin memori bareng.\n\nI love you.",
+  letterSign: "Pro: Refki",
 
   // BGM
   bgmUrl: '/audio/hari_ini.mp3',        // Lagu utama galeri
@@ -34,16 +38,19 @@ export const useStore = create((set) => ({
   config: appConfig,
   controlMode: 'guided',
   currentWaypoint: 0,
-  maxWaypoints: appConfig.photos.length + 1,
+  maxWaypoints: appConfig.photos.length + 2, // +1 untuk Depan Pintu, +1 untuk Cake di Secret Room
   candleBlown: false,
   showLetter: false,
   focusedPhoto: null,
   isUnlocked: false,
+  isSecretRoomUnlocked: false, // State untuk Secret Door
   isModeSelected: false,
   isMuted: false,
   lightboxPhoto: null, // Store the full photo object for lightbox
+  showEKG: false, // State for manual EKG trigger
 
   unlock: () => set({ isUnlocked: true }),
+  unlockSecretRoom: () => set({ isSecretRoomUnlocked: true }),
   setModeSelected: (selected) => set({ isModeSelected: selected }),
   setControlMode: (mode) => set({ controlMode: mode }),
   nextWaypoint: () => set((state) => ({
@@ -57,4 +64,5 @@ export const useStore = create((set) => ({
   setFocusedPhoto: (id) => set({ focusedPhoto: id }),
   setLightboxPhoto: (photo) => set({ lightboxPhoto: photo }),
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
+  setShowEKG: (val) => set({ showEKG: val }),
 }))
