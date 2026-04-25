@@ -103,8 +103,8 @@ function Gift({ position, color, ribbonColor, message, rotationY = 0 }) {
 
 export default function Gifts() {
   const gifts = useMemo(() => [
-    { id: 1, position: [-1.8, 0, -43], color: '#ffffff', ribbonColor: '#d4af37', rotationY: Math.PI / 6, message: 'I Love You!' },
-    { id: 2, position: [1.8, 0, -43.5], color: '#2c303a', ribbonColor: '#ff6b9a', rotationY: -Math.PI / 8, message: 'You are amazing!' }
+    { id: 1, position: [-1.8, 0, -43], color: '#ffffff', ribbonColor: '#ff6b9a', rotationY: Math.PI / 6, message: 'I Love You!' },
+    { id: 2, position: [1.8, 0, -43.5], color: '#ffeaa7', ribbonColor: '#ff90b3', rotationY: -Math.PI / 8, message: 'You are amazing!' }
   ], [])
 
   return (

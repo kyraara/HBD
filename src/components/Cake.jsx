@@ -12,8 +12,7 @@ function Confetti({ count = 60 }) {
       temp.push({
         position: [(Math.random() - 0.5) * 3, Math.random() * 2 + 1, (Math.random() - 0.5) * 3],
         speed: 0.3 + Math.random() * 0.5,
-        rotationSpeed: Math.random() * 2,
-        color: ['#d4af37', '#ff90b3', '#ff6b6b', '#4caf50', '#64b5f6', '#fef1a5'][Math.floor(Math.random() * 6)]
+        color: ['#ff90b3', '#ff6b9a', '#ffd700', '#ffb8d2', '#ffffff', '#e83e8c'][Math.floor(Math.random() * 6)]
       })
     }
     return temp
@@ -85,15 +84,14 @@ export default function Cake({ position }) {
       {/* Spotlight on the cake */}
       <spotLight ref={spotLightRef} position={[0, 4, 2]} angle={0.5} penumbra={0.8} intensity={2} distance={8} castShadow />
 
-      {/* Table */}
       <mesh position={[0, -0.3, 0]} receiveShadow>
         <cylinderGeometry args={[1.6, 1.4, 0.6, 32]} />
-        <meshStandardMaterial color="#2a1a0a" roughness={0.6} metalness={0.1} />
+        <meshStandardMaterial color="#4a3525" roughness={0.6} metalness={0.1} />
       </mesh>
       {/* Tablecloth edge */}
       <mesh position={[0, -0.05, 0]}>
         <cylinderGeometry args={[1.65, 1.65, 0.05, 32]} />
-        <meshStandardMaterial color="#f5f0e8" roughness={0.8} />
+        <meshStandardMaterial color="#d4af37" roughness={0.8} />
       </mesh>
 
       {/* Cake Bottom Layer */}

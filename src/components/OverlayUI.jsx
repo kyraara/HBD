@@ -142,12 +142,12 @@ function ModeSelector({ onSelect }) {
         initial={{ scale: 0 }}
         animate={{ scale: 1, transition: { type: 'spring', stiffness: 200, delay: 0.2 } }}
       >
-        🔓
+        ✓
       </motion.div>
 
-      <h1 className="vault-title" style={{ marginBottom: '0.5rem' }}>Selamat Datang</h1>
+      <h1 className="vault-title" style={{ marginBottom: '0.5rem' }}>{`> session.init()`}</h1>
       <p className="mode-selector-subtitle">
-        Pilih cara kamu menjelajahi galeri kenangan ini
+        {`// Select navigation mode...`}
       </p>
 
       <div className="mode-options">
@@ -161,9 +161,9 @@ function ModeSelector({ onSelect }) {
           whileTap={{ scale: 0.97 }}
         >
           <span className="mode-option-icon">🎬</span>
-          <span className="mode-option-title">Ikuti Pemandu</span>
-          <span className="mode-option-desc">Nikmati perjalanan santai menelusuri tiap kenangan</span>
-          <span className="mode-option-badge">✨ Rekomendasi</span>
+          <span className="mode-option-title">autopilot.sh</span>
+          <span className="mode-option-desc">Guided tour — santai menelusuri tiap momen</span>
+          <span className="mode-option-badge">✨ Recommended</span>
         </motion.button>
 
         {/* Manual Option */}
@@ -176,8 +176,8 @@ function ModeSelector({ onSelect }) {
           whileTap={{ scale: 0.97 }}
         >
           <span className="mode-option-icon">🎮</span>
-          <span className="mode-option-title">Bebas Berkeliling</span>
-          <span className="mode-option-desc">Eksplorasi museum sesukamu dengan joystick / WASD</span>
+          <span className="mode-option-title">manual.exe</span>
+          <span className="mode-option-desc">Eksplorasi galeri sesukamu / WASD</span>
         </motion.button>
       </div>
     </motion.div>
@@ -335,10 +335,10 @@ export default function OverlayUI({ started, onStart }) {
                   className="lock-icon"
                   animate={{ scale: pinError ? [1, 0.9, 1] : 1 }}
                 >
-                  🔒
+                  🖥️
                 </motion.div>
 
-                <h1 className="vault-title">The Vault of Us</h1>
+                <h1 className="vault-title">{`portal --access memories`}</h1>
 
                 <p className="vault-subtitle">{config.passwordHint}</p>
                 {/* PIN Input */}
@@ -358,7 +358,7 @@ export default function OverlayUI({ started, onStart }) {
                       exit={{ opacity: 0 }}
                       style={{ color: '#ff6b6b', fontSize: '0.85rem', marginTop: '0.5rem' }}
                     >
-                      Hmm, bukan itu kodenya...
+                      ❌ special_room_auth: access_key rejected. Try again...
                     </motion.p>
                   )}
                 </AnimatePresence>
@@ -381,7 +381,7 @@ export default function OverlayUI({ started, onStart }) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 0.5 } }}
           >
-            {isGuided ? '🎬 Guided' : '🎮 Manual'}
+            {isGuided ? '🎬 auto' : '🎮 manual'}
           </motion.button>
         </div>
       )}
@@ -418,7 +418,7 @@ export default function OverlayUI({ started, onStart }) {
               animate={{ opacity: 1 }}
               whileTap={{ scale: 0.95 }}
             >
-              ← Kembali
+              {'< back'}
             </motion.button>
           )}
 
@@ -436,7 +436,7 @@ export default function OverlayUI({ started, onStart }) {
               animate={{ opacity: 1 }}
               whileTap={{ scale: 0.95 }}
             >
-              Lanjut →
+              {'next >'}
             </motion.button>
           )}
 
@@ -446,53 +446,76 @@ export default function OverlayUI({ started, onStart }) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              💨 Tiup lilinnya lewat mic! 🎂
+              {'💨 mic.detect() → blow candle! 🎂'}
             </motion.div>
           )}
         </div>
       )}
 
-      {/* ===== EKG COUNTDOWN FOR SECRET DOOR ===== */}
+      {/* ===== SI ACCESS PANEL FOR SECRET DOOR ===== */}
       <AnimatePresence>
         {started && !showLetter && (currentWaypoint === (maxWaypoints - 1) || showEKG) && !isSecretRoomUnlocked && (
-          <motion.div 
+            <motion.div
             className="ekg-countdown ui-interactive"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            style={{ position: 'relative' }}
+            initial={{ opacity: 0, scale: 0.9, x: '-50%', y: '-50%' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.9, x: '-50%', y: '-50%' }}
+            style={{ position: 'absolute', top: '50%', left: '50%' }}
           >
             {controlMode === 'manual' && (
-              <button 
+              <button
                 onClick={() => setShowEKG(false)}
-                style={{ position: 'absolute', top: 10, right: 15, background: 'none', border: 'none', color: '#ff6b9a', cursor: 'pointer', fontSize: '1.2rem'}}
+                style={{ position: 'absolute', top: 10, right: 15, background: 'none', border: 'none', color: '#d4af37', cursor: 'pointer', fontSize: '1.2rem' }}
               >
                 ✕
               </button>
             )}
-            <p className="ekg-message">Belum waktunya...</p>
+            <div style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.8rem' }}>🔐</div>
+            <p className="ekg-message">{`> [SPECIAL_ROOM_AUTH] Verifikasi akses`}</p>
             <div className="ekg-line">
               <svg width="100%" height="100%" viewBox="0 0 300 60" preserveAspectRatio="none">
-                <polyline 
-                  points="0,30 50,30 60,10 70,50 80,20 90,40 100,30 300,30" 
-                  fill="none" 
-                  stroke="#e83e8c" 
-                  strokeWidth="3" 
-                  strokeLinejoin="round" 
-                  strokeLinecap="round"
-                />
+                {/* Network data flow line */}
+                <line x1="0" y1="30" x2="300" y2="30" stroke="rgba(212,175,55,0.15)" strokeWidth="1" />
+                {/* Data packets flowing */}
+                <circle cx="0" cy="30" r="4" fill="#d4af37" opacity="0.8">
+                  <animate attributeName="cx" values="0;300" dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="0" cy="30" r="3" fill="#d4af37" opacity="0.6">
+                  <animate attributeName="cx" values="0;300" dur="2s" begin="0.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2s" begin="0.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="0" cy="30" r="3" fill="#d4af37" opacity="0.5">
+                  <animate attributeName="cx" values="0;300" dur="2s" begin="1s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" begin="1s" repeatCount="indefinite" />
+                </circle>
+                {/* Node points */}
+                <circle cx="50" cy="30" r="5" fill="none" stroke="#d4af37" strokeWidth="1.5" opacity="0.4" />
+                <circle cx="150" cy="30" r="5" fill="none" stroke="#d4af37" strokeWidth="1.5" opacity="0.4" />
+                <circle cx="250" cy="30" r="5" fill="none" stroke="#d4af37" strokeWidth="1.5" opacity="0.4" />
+                {/* Branch lines */}
+                <line x1="50" y1="30" x2="80" y2="15" stroke="rgba(212,175,55,0.2)" strokeWidth="1" />
+                <line x1="150" y1="30" x2="180" y2="45" stroke="rgba(212,175,55,0.2)" strokeWidth="1" />
+                <line x1="250" y1="30" x2="220" y2="15" stroke="rgba(212,175,55,0.2)" strokeWidth="1" />
+                {/* Small endpoint nodes */}
+                <circle cx="80" cy="15" r="2.5" fill="#d4af37" opacity="0.3" />
+                <circle cx="180" cy="45" r="2.5" fill="#d4af37" opacity="0.3" />
+                <circle cx="220" cy="15" r="2.5" fill="#d4af37" opacity="0.3" />
               </svg>
             </div>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(0.55rem, 2.5vw, 0.7rem)', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              {`[node_1: ✓] [node_2: ✓] [node_3: syncing...]`}
+            </p>
             {isWaiting ? (
               <CountdownTimer targetDate={config.birthdayDate} />
             ) : (
-              <motion.button 
-                className="gift-btn" 
-                style={{ padding: '10px 20px', fontSize: '0.9rem', marginTop: '1rem' }}
+              <motion.button
+                className="gift-btn"
+                style={{ padding: '10px 20px', fontSize: '0.9rem', marginTop: '0.5rem' }}
                 onClick={unlockSecretRoom}
                 whileTap={{ scale: 0.9 }}
               >
-                Buka Pintu
+                {'> si.authorize()'}
               </motion.button>
             )}
           </motion.div>
@@ -510,38 +533,38 @@ export default function OverlayUI({ started, onStart }) {
             <HandwrittenLetter onComplete={() => setTypingDone(true)} />
 
             {/* Action Buttons - appear after typing is done */}
-              <AnimatePresence>
-                {typingDone && (
-                  <motion.div
-                    className="letter-actions"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0, transition: { delay: 0.5 } }}
+            <AnimatePresence>
+              {typingDone && (
+                <motion.div
+                  className="letter-actions"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0, transition: { delay: 0.5 } }}
+                >
+                  <motion.button
+                    className="gift-btn"
+                    onClick={claimGift}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <motion.button
-                      className="gift-btn"
-                      onClick={claimGift}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      🎁 Klaim Kado
-                    </motion.button>
+                    🎁 git pull --kado
+                  </motion.button>
 
-                    <motion.button
-                      className="screenshot-btn"
-                      onClick={() => {
-                        playUIClick(isMuted)
-                        captureScreenshot()
-                      }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1, transition: { delay: 0.8 } }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      📸 Simpan Momen
-                    </motion.button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  <motion.button
+                    className="screenshot-btn"
+                    onClick={() => {
+                      playUIClick(isMuted)
+                      captureScreenshot()
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, transition: { delay: 0.8 } }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    📸 screenshot.save()
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

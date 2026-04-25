@@ -14,7 +14,7 @@ export default function Fireworks({ active }) {
     canvas.height = window.innerHeight
 
     const particles = []
-    const colors = ['#d4af37', '#ff90b3', '#ff6b6b', '#4caf50', '#64b5f6', '#fef1a5', '#e040fb', '#fff']
+    const colors = ['#ff90b3', '#ff6b9a', '#ffd700', '#ffb8d2', '#ffffff', '#e83e8c', '#ffaa33', '#fff']
     
     function createBurst(x, y) {
       for (let i = 0; i < 40; i++) {

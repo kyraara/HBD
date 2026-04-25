@@ -71,9 +71,12 @@ function App() {
                 <PhotoFrame key={photo.id} {...photo} />
               ))}
               
-              <SecretRoom />
+
             </>
           )}
+
+          {/* SecretRoom preloaded early for stutter-free door opening */}
+          <SecretRoom />
 
           <CameraPath started={started} />
           <ManualControls started={started} />

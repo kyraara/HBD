@@ -1,115 +1,201 @@
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { useStore } from '../store'
 
-function HandwrittenTypewriter({ text, delay, onFinish }) {
+function TerminalTypewriter({ text, delay, onFinish }) {
   const [displayedText, setDisplayedText] = useState('')
+  const onFinishRef = useRef(onFinish)
+  const scrollRef = useRef(null)
+
+  // Keep ref in sync without triggering re-render
+  useEffect(() => {
+    onFinishRef.current = onFinish
+  }, [onFinish])
 
   useEffect(() => {
-    let i = 0;
+    let i = 0
+    let intervalId
     const startTyping = setTimeout(() => {
-      const intervalId = setInterval(() => {
-        setDisplayedText(text.slice(0, i))
+      intervalId = setInterval(() => {
         i++
-        if (i > text.length) {
+        setDisplayedText(text.slice(0, i))
+        if (i >= text.length) {
           clearInterval(intervalId)
-          if (onFinish) onFinish()
+          if (onFinishRef.current) onFinishRef.current()
         }
-      }, 40) // Faster for cursive tying
-      return () => clearInterval(intervalId)
+      }, 45) // Slower for readability
     }, delay)
 
-    return () => clearTimeout(startTyping)
-  }, [text, delay, onFinish])
+    return () => {
+      clearTimeout(startTyping)
+      if (intervalId) clearInterval(intervalId)
+    }
+  }, [text, delay])
 
-  return <span style={{ whiteSpace: 'pre-line' }}>{displayedText}</span>
+  // Auto-scroll as text types
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [displayedText])
+
+  return (
+    <div ref={scrollRef} style={{ maxHeight: '200px', overflowY: 'auto' }}>
+      <span style={{ whiteSpace: 'pre-line' }}>
+        {displayedText}
+        <span className="block-cursor" />
+      </span>
+    </div>
+  )
 }
 
 export default function HandwrittenLetter({ onComplete }) {
   const { config } = useStore()
   const [step, setStep] = useState(0)
 
-  // CSS for handwritten fonts added inline for simplicity
+  const commitDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  })
+
+  const handleTypeFinish = useCallback(() => {
+    setStep(2)
+  }, [])
+
+  // Stagger config for smooth section reveals
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: (delay) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay, duration: 0.6, ease: 'easeOut' }
+    })
+  }
+
   return (
-    <motion.div 
-      className="prescription-card"
-      initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
-      animate={{ opacity: 1, scale: 1, rotate: 0, transition: { duration: 1, ease: 'easeOut' } }}
+    <motion.div
+      className="terminal-card"
+      initial={{ opacity: 0, scale: 0.92, y: 30 }}
+      animate={{ opacity: 1, scale: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }}
     >
-      <div className="prescription-header">
-        <motion.div 
-          className="clinic-logo"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { delay: 0.5 } }}
-        >
-          {/* Medical Cross SVG */}
-          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="#e83e8c" strokeWidth="8" strokeLinecap="round">
-            <motion.path 
-              d="M50 20 L50 80 M20 50 L80 50" 
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1, transition: { duration: 1.5, ease: 'easeInOut' } }}
-            />
-          </svg>
-        </motion.div>
-        
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0, transition: { delay: 1 } }}
-          className="prescription-rx"
-        >
-          {config.letterTitle}
-        </motion.div>
+      {/* Terminal title bar */}
+      <div className="terminal-titlebar">
+        <div className="terminal-dot red" />
+        <div className="terminal-dot yellow" />
+        <div className="terminal-dot green" />
+        <span className="terminal-titlebar-text">special_letter --untuk Bintang Aprilia</span>
       </div>
 
-      <div className="prescription-body handwritten-font">
-        {/* Patient Name */}
-        <motion.p className="prescription-patient" initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 1.5 } }}>
-          {config.letterPatient}
-        </motion.p>
-        
-        <div className="divider-line" />
+      <div className="terminal-body">
+        {/* Prompt line */}
+        <motion.div
+          variants={sectionVariants}
+          custom={0.3}
+          initial="hidden"
+          animate="visible"
+        >
+          <span className="terminal-prompt">$ </span>
+          <span style={{ color: 'var(--text-main)' }}>git log --format=full HEAD~1</span>
+        </motion.div>
 
-        {/* Diagnosis */}
-        <motion.p className="prescription-diagnosis" initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 2.5 } }} onAnimationComplete={() => setStep(1)}>
-          {config.letterDiagnosis}
-        </motion.p>
+        <div style={{ height: '0.8rem' }} />
 
-        {/* Main Text */}
-        <div className="prescription-notes">
+        {/* Commit hash */}
+        <motion.div
+          variants={sectionVariants}
+          custom={1.0}
+          initial="hidden"
+          animate="visible"
+        >
+          <span className="terminal-keyword">commit </span>
+          <span className="terminal-commit-hash">{config.letterCommitHash || 'a8f04d2'}</span>
+        </motion.div>
+
+        {/* Author */}
+        <motion.div
+          variants={sectionVariants}
+          custom={1.5}
+          initial="hidden"
+          animate="visible"
+        >
+          <span className="terminal-keyword">Author: </span>
+          <span className="terminal-author">{config.letterAuthor || 'Refki <refki@heart.dev>'}</span>
+        </motion.div>
+
+        {/* Recipient */}
+        <motion.div
+          variants={sectionVariants}
+          custom={1.8}
+          initial="hidden"
+          animate="visible"
+        >
+          <span className="terminal-keyword">To:     </span>
+          <span className="terminal-author">Bintang Aprilia</span>
+        </motion.div>
+
+        {/* Date */}
+        <motion.div
+          variants={sectionVariants}
+          custom={2.2}
+          initial="hidden"
+          animate="visible"
+        >
+          <span className="terminal-keyword">Date:   </span>
+          <span className="terminal-date">{commitDate}</span>
+        </motion.div>
+
+        <div style={{ height: '1rem' }} />
+
+        {/* Commit message title */}
+        <motion.div
+          variants={sectionVariants}
+          custom={2.8}
+          initial="hidden"
+          animate="visible"
+          onAnimationComplete={() => setStep(1)}
+          style={{ paddingLeft: '1rem', fontWeight: 500, color: 'var(--accent)' }}
+        >
+          {config.letterCommitMsg || "fix(heart): patch vulnerability to you"}
+        </motion.div>
+
+        <div style={{ height: '0.8rem' }} />
+
+        {/* Commit body - typed out */}
+        <div className="terminal-message" style={{ minHeight: '120px' }}>
           {step >= 1 && (
-            <HandwrittenTypewriter 
-              text={config.letterText} 
+            <TerminalTypewriter
+              text={config.letterBody || config.letterText}
               delay={500}
-              onFinish={() => setStep(2)} 
+              onFinish={handleTypeFinish}
             />
           )}
         </div>
 
-        {/* Sign */}
-        <div className="prescription-footer">
-          {step >= 2 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} 
-              animate={{ opacity: 1, y: 0, transition: { delay: 0.5, duration: 1 } }}
-              onAnimationComplete={() => setTimeout(() => {
-                if (onComplete) onComplete()
-              }, 1000)}
-            >
-              <p>{config.letterSign}</p>
-              {/* Signature SVG animation */}
-              <svg width="100" height="50" viewBox="0 0 200 100" className="signature-svg">
-                <motion.path 
-                  d="M20 80 C 40 20, 60 70, 80 50 C 100 30, 120 70, 150 40 S 180 30, 190 60" 
-                  fill="none" 
-                  stroke="#2c3e50" 
-                  strokeWidth="3"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1, transition: { duration: 1.5, ease: 'easeOut', delay: 1 } }}
-                />
-              </svg>
-            </motion.div>
-          )}
-        </div>
+        {/* Sign-off */}
+        {step >= 2 && (
+          <motion.div
+            className="terminal-signoff"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.8, ease: 'easeOut' } }}
+            onAnimationComplete={() => setTimeout(() => {
+              if (onComplete) onComplete()
+            }, 1000)}
+          >
+            {config.letterSignOff || config.letterSign}
+          </motion.div>
+        )}
+
+        {/* Blinking prompt at the end */}
+        {step >= 2 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 1.8 } }}
+            style={{ marginTop: '1rem' }}
+          >
+            <span className="terminal-prompt">$ </span>
+            <span className="block-cursor" />
+          </motion.div>
+        )}
       </div>
     </motion.div>
   )

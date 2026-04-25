@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useStore } from '../store'
-import { playFootstep } from '../utils/sfx'
+import { playFootstep, playFootstepEcho } from '../utils/sfx'
 
 const MOVE_SPEED = 3
 const LOOK_SPEED = 0.003
@@ -141,10 +141,15 @@ export default function ManualControls({ started }) {
       newPos.y = 1.5 // Lock height
       camera.position.copy(newPos)
 
-      // Footstep SFX
+      // Footstep SFX — echo in secret room
       footstepTimer.current += delta
       if (footstepTimer.current >= 0.45) {
-        playFootstep(isMuted)
+        const inSecretRoom = camera.position.z < -35
+        if (inSecretRoom) {
+          playFootstepEcho(isMuted)
+        } else {
+          playFootstep(isMuted)
+        }
         footstepTimer.current = 0
       }
     } else {
